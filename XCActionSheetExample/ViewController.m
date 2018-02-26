@@ -50,22 +50,12 @@
     } configure:NULL selectedIndex:1 didSelectRowHandle:^(NSInteger index) {
         
          NSLog(@"点击的第%zi个按钮", index);
+    } dismissHandle:^{
+        
+        NSLog(@"消失后的回调");
     }];
 }
 
 
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
 

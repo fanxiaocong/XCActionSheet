@@ -13,7 +13,6 @@
  */
 
 
-
 #import "XCActionSheet.h"
 
 
@@ -66,6 +65,8 @@
 
 /** 👀 点击某行的回调 👀 */
 @property (copy, nonatomic) void(^didClickHandle)(NSInteger index, NSString *title);
+/** 👀 消失后的回调 👀 */
+@property (copy, nonatomic) void(^dismissHandle)(void);
 
 /** 👀 标题 👀 */
 @property (copy, nonatomic) NSString *title;
@@ -139,7 +140,7 @@
 }
 
 /**
-    设置 默认参数
+ 设置 默认参数
  */
 - (void)setupDefaults
 {
@@ -248,7 +249,7 @@
 #pragma mark - 🎬 👀 Action Method 👀
 
 /**
-    显示
+ 显示
  */
 - (void)show
 {
@@ -268,14 +269,14 @@
 }
 
 /**
-    消失
+ 消失
  */
 - (void)dismiss
 {
     __weak typeof(self) weakSelf = self;
     
     self.contentView.transform = CGAffineTransformIdentity;
-
+    
     [UIView animateWithDuration:DURATION animations:^{
         
         CGFloat moveY = CGRectGetHeight(weakSelf.contentView.frame);
@@ -286,17 +287,22 @@
     } completion:^(BOOL finished) {
         
         [weakSelf removeFromSuperview];
+        
+        if (weakSelf.dismissHandle)
+        {
+            weakSelf.dismissHandle();
+        }
     }];
 }
 
 
 /**
-    点击了 内容上的某个 cell 的回调
+ 点击了 内容上的某个 cell 的回调
  */
 - (void)didClickRowAction:(UIButton *)button
 {
     [self dismiss];
-
+    
     NSInteger index = button.tag - CELL_BUTTON_TAG;
     
     if (self.didClickHandle)
@@ -313,16 +319,19 @@
  @param title           标题
  @param titles          内容的标题
  @param didClickHandle  点击的回调
+ @param dismissHandle   消失后的回调
  */
 + (void)showActionSheetWithTitle:(NSString *)title
                    contentTitles:(NSArray<NSString *> *)titles
                   didClickHandle:(void(^)(NSInteger index, NSString *title))didClickHandle
+                   dismissHandle:(void(^)(void))dismissHandle
 {
     [self showActionSheetWithTitle:title
                      contentTitles:titles
                          configure:NULL
-                     selectedIndex:HUGE_VAL
-                    didClickHandle:didClickHandle];
+                     selectedIndex:NSNotFound
+                    didClickHandle:didClickHandle
+                     dismissHandle:dismissHandle];
 }
 
 
@@ -334,19 +343,22 @@
  @param configure       参数配置选项
  @param selectedIndex   默认选中的下标
  @param didClickHandle  点击的回调
+ @param dismissHandle   消失后的回调
  */
 + (void)showActionSheetWithTitle:(NSString *)title
                    contentTitles:(NSArray<NSString *> *)titles
                        configure:(XCActionSheetConfigure *)configure
                    selectedIndex:(NSInteger)selectedIndex
                   didClickHandle:(void(^)(NSInteger index, NSString *title))didClickHandle
+                   dismissHandle:(void(^)(void))dismissHandle
 {
     [self showActionSheetWithTitle:title
                      contentTitles:titles
                        cancelTitle:@"取消"
                          configure:configure
                      selectedIndex:selectedIndex
-                    didClickHandle:didClickHandle];
+                    didClickHandle:didClickHandle
+                     dismissHandle:dismissHandle];
 }
 
 
@@ -359,6 +371,7 @@
  @param configure       参数配置选项
  @param selectedIndex   默认选中的下标
  @param didClickHandle  点击的回调
+ @param dismissHandle   消失后的回调
  */
 + (void)showActionSheetWithTitle:(NSString *)title
                    contentTitles:(NSArray<NSString *> *)titles
@@ -366,6 +379,7 @@
                        configure:(XCActionSheetConfigure *)configure
                    selectedIndex:(NSInteger)selectedIndex
                   didClickHandle:(void(^)(NSInteger index, NSString *title))didClickHandle
+                   dismissHandle:(void(^)(void))dismissHandle
 {
     XCActionSheet *actionSheet = [[XCActionSheet alloc] initWithTitle:title
                                                         contentTitles:titles
@@ -374,6 +388,7 @@
                                                         selectedIndex:selectedIndex];
     
     actionSheet.didClickHandle = didClickHandle;
+    actionSheet.dismissHandle  = dismissHandle;
     
     [actionSheet show];
 }
@@ -387,6 +402,7 @@
  @param configure               参数配置选项
  @param selectedIndex           默认选中的下标
  @param didSelectRowHandle      点击的回调
+ @param dismissHandle           消失后的回调
  */
 + (void)showActionSheetWithTitle:(NSString *)title
                        cellCount:(NSInteger)cellCount
@@ -394,6 +410,7 @@
                        configure:(XCActionSheetConfigure *)configure
                    selectedIndex:(NSInteger)selectedIndex
               didSelectRowHandle:(void(^)(NSInteger index))didSelectRowHandle
+                   dismissHandle:(void(^)(void))dismissHandle
 {
     XCActionSheet *actionSheet = [[XCActionSheet alloc] initWithTitle:title
                                                         contentTitles:NULL
@@ -405,6 +422,7 @@
     
     actionSheet.cellConfigure      = cellConfigure;
     actionSheet.didSelectRowHandle = didSelectRowHandle;
+    actionSheet.dismissHandle      = dismissHandle;
     
     [actionSheet show];
 }
@@ -429,7 +447,7 @@
     {
         if (self.cellConfigure)
         {
-           return self.cellConfigure(tableView, indexPath);
+            return self.cellConfigure(tableView, indexPath);
         }
     }
     
@@ -482,7 +500,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self dismiss];
-
+    
     if (!self.isCustom)
     {
         return;

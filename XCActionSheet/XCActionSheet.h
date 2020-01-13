@@ -83,7 +83,6 @@
  @param cellCount               配置cell的个数
  @param cellConfigure           配置cell
  @param configure               参数配置选项
- @param selectedIndex           默认选中的下标
  @param didSelectRowHandle      点击的回调
  @param dismissHandle           消失后的回调
  */
@@ -91,7 +90,6 @@
                        cellCount:(NSInteger)cellCount
                    cellConfigure:(UITableViewCell *(^)(UITableView *tableView, NSIndexPath *indexPath))cellConfigure
                        configure:(XCActionSheetConfigure *)configure
-                   selectedIndex:(NSInteger)selectedIndex
               didSelectRowHandle:(void(^)(NSInteger index))didSelectRowHandle
                    dismissHandle:(void(^)(void))dismissHandle;
 

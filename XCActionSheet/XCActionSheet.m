@@ -221,7 +221,7 @@
     CGFloat bottomLineLayerH = 10;
     CALayer *bottomLineLayer = [CALayer layer];
     bottomLineLayer.frame    = CGRectMake(bottomLineLayerX, bottomLineLayerY, bottomLineLayerW, bottomLineLayerH);
-    bottomLineLayer.backgroundColor = SEPERATOR_LINE_COLOR.CGColor;
+    bottomLineLayer.backgroundColor = RGBA_COLOR(245, 245, 245, 1).CGColor;
     [self.contentView.layer addSublayer:bottomLineLayer];
     
     /// 底部取消按钮
@@ -313,14 +313,6 @@
 
 #pragma mark - 🔓 👀 Public Method 👀
 
-/**
- 弹出一个 Action
- 
- @param title           标题
- @param titles          内容的标题
- @param didClickHandle  点击的回调
- @param dismissHandle   消失后的回调
- */
 + (void)showActionSheetWithTitle:(NSString *)title
                    contentTitles:(NSArray<NSString *> *)titles
                   didClickHandle:(void(^)(NSInteger index, NSString *title))didClickHandle
@@ -334,17 +326,6 @@
                      dismissHandle:dismissHandle];
 }
 
-
-/**
- 弹出一个 Action
- 
- @param title           标题
- @param titles          内容的标题
- @param configure       参数配置选项
- @param selectedIndex   默认选中的下标
- @param didClickHandle  点击的回调
- @param dismissHandle   消失后的回调
- */
 + (void)showActionSheetWithTitle:(NSString *)title
                    contentTitles:(NSArray<NSString *> *)titles
                        configure:(XCActionSheetConfigure *)configure
@@ -361,18 +342,6 @@
                      dismissHandle:dismissHandle];
 }
 
-
-/**
- 弹出一个 Action
- 
- @param title           标题
- @param titles          内容的标题
- @param cancelTitle     取消按钮怕标题
- @param configure       参数配置选项
- @param selectedIndex   默认选中的下标
- @param didClickHandle  点击的回调
- @param dismissHandle   消失后的回调
- */
 + (void)showActionSheetWithTitle:(NSString *)title
                    contentTitles:(NSArray<NSString *> *)titles
                      cancelTitle:(NSString *)cancelTitle
@@ -393,22 +362,10 @@
     [actionSheet show];
 }
 
-/**
- 弹出一个 Action 自定义
- 
- @param title                   标题
- @param cellCount               配置cell的个数
- @param cellConfigure           配置cell
- @param configure               参数配置选项
- @param selectedIndex           默认选中的下标
- @param didSelectRowHandle      点击的回调
- @param dismissHandle           消失后的回调
- */
 + (void)showActionSheetWithTitle:(NSString *)title
                        cellCount:(NSInteger)cellCount
                    cellConfigure:(UITableViewCell *(^)(UITableView *tableView, NSIndexPath *indexPath))cellConfigure
                        configure:(XCActionSheetConfigure *)configure
-                   selectedIndex:(NSInteger)selectedIndex
               didSelectRowHandle:(void(^)(NSInteger index))didSelectRowHandle
                    dismissHandle:(void(^)(void))dismissHandle
 {
@@ -416,7 +373,7 @@
                                                         contentTitles:NULL
                                                           cancelTitle:@"取消"
                                                             configure:configure
-                                                        selectedIndex:selectedIndex
+                                                        selectedIndex:NSNotFound
                                                              isCustom:YES
                                                             cellCount:cellCount];
     
@@ -432,8 +389,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // 是自定义的cell
-    if (self.isCustom)
-    {
+    if (self.isCustom) {
         return self.cellCount;
     }
     
@@ -443,10 +399,8 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     /// 自定义cell
-    if (self.isCustom)
-    {
-        if (self.cellConfigure)
-        {
+    if (self.isCustom) {
+        if (self.cellConfigure) {
             return self.cellConfigure(tableView, indexPath);
         }
     }
@@ -456,23 +410,14 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     
-    if (!cell)
-    {
-        if (self.isCustom)
-        {
-            return [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-        }
-        else
-        {
-            /// 非自定义的cell
-            cell = [[XCActionSheetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-        }
+    if (!cell) {
+        /// 非自定义的cell
+        cell = [[XCActionSheetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    if (self.contentTitles.count > indexPath.row)
-    {
+    if (self.contentTitles.count > indexPath.row) {
         NSString *title  = self.contentTitles[indexPath.row];
         UIButton *button = ((XCActionSheetCell *)cell).titleButton;
         button.tag = indexPath.row + CELL_BUTTON_TAG;
@@ -483,8 +428,7 @@
         UIColor *titleColor = self.configure.normalContentTextColor;
         
         /// 设置选中状态
-        if (self.selectedIndex == indexPath.row)
-        {
+        if (self.selectedIndex == indexPath.row) {
             titleColor = self.configure.selectedContentTextColor;
         }
         
@@ -501,13 +445,11 @@
 {
     [self dismiss];
     
-    if (!self.isCustom)
-    {
+    if (!self.isCustom) {
         return;
     }
     
-    if (self.didSelectRowHandle)
-    {
+    if (self.didSelectRowHandle) {
         self.didSelectRowHandle(indexPath.row);
     }
 }
@@ -515,16 +457,13 @@
 // 设置分隔线的样式
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([tableView respondsToSelector:@selector(setSeparatorInset:)])
-    {
+    if ([tableView respondsToSelector:@selector(setSeparatorInset:)]) {
         [tableView setSeparatorInset:UIEdgeInsetsZero];
     }
-    if ([tableView respondsToSelector:@selector(setLayoutMargins:)])
-    {
+    if ([tableView respondsToSelector:@selector(setLayoutMargins:)]) {
         [tableView setLayoutMargins:UIEdgeInsetsZero];
     }
-    if ([cell respondsToSelector:@selector(setLayoutMargins:)])
-    {
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
 }

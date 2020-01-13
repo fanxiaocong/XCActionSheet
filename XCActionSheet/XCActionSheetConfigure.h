@@ -25,11 +25,11 @@
 @property (assign, nonatomic) CGFloat titleFontSize;
 
 
-/** 👀 内容普通状态下的文字颜色 默认 blackColor 👀 */
+/** 👀 内容普通状态下的文字颜色 默认 blackColor（只对非自定义内容有效） 👀 */
 @property (weak, nonatomic) UIColor *normalContentTextColor;
-/** 👀 内容选中状态下的文字颜色 默认 redColor 👀 */
+/** 👀 内容选中状态下的文字颜色 默认 redColor（只对非自定义内容有效） 👀 */
 @property (weak, nonatomic) UIColor *selectedContentTextColor;
-/** 👀 内容文字大小：默认 15 👀 */
+/** 👀 内容文字大小：默认 15（只对非自定义内容有效） 👀 */
 @property (assign, nonatomic) CGFloat contentFontSize;
 
 
